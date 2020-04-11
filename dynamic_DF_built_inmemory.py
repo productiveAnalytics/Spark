@@ -88,8 +88,10 @@ employee_df.show()
 dept_empl_df = spark.sql("""SELECT d.Dept_Name, d.Location, e.firstName, e.lastName, e.salary
                             FROM Departments d, Employees e
                             WHERE d.Dept_ID == e.dept_id""")
-dept_empl_df.write.csv(path="./dept-empl-joined-CSV", mode='overwrite')
 dept_empl_df.show()
+### Save as single CSV file
+dept_empl_df.coalesce(1) \
+            .write.csv(path="./dept-empl-joined-csv", mode='overwrite', header=True)
 
 # avg salary by dept
 avg_salary_by_dept_df = dept_empl_df.groupBy(col('Dept_Name')) \
