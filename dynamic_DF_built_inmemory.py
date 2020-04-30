@@ -7,11 +7,13 @@
 import findspark
 findspark.init()    # findspark.find() to print out SPARK_HOME
 
+from itertools import chain
+
 from pyspark.conf import SparkConf
 from pyspark.sql import SparkSession
 from pyspark.sql.types import ArrayType, StructField, StructType, StringType, IntegerType
 from pyspark.sql import Row
-from pyspark.sql.functions import lit, col, avg, sum, broadcast, when
+from pyspark.sql.functions import lit, col, avg, sum, broadcast, when, create_map
 
 app_name='PySpark-dynamic-Dataframe-with-SQL-query'
 master_host = 'local'
@@ -124,7 +126,7 @@ employee_df.show(truncate=False)
 # Ensure null-value records have been filtered out 
 assert (valid_employees_count < all_employees_count)
 
-# broadcast entire dataframe
+# broadcast simple map
 city_to_region_map = { 'Seattle, WA' : 'North West', 
                        'Austin, TX' : 'South',
                        'SLC, UT' : 'West',
@@ -136,18 +138,31 @@ city_to_region_map = { 'Seattle, WA' : 'North West',
                        'NYC' : 'North East'
 
                        # RTP, NC is not mapped intentionally
+                       # 'Research Triangle Park, Raleigh-Durham-Cary, NC' : '---'
                     }
 bc_city_to_region = sc.broadcast(city_to_region_map)
+
+# Refer: https://stackoverflow.com/questions/50321549/map-values-in-a-dataframe-from-a-dictionary-using-pyspark
+bc_c_2_r_dict = bc_city_to_region.value
+mapping_expr = create_map ( [lit(x) for x in chain(*bc_c_2_r_dict.items())] )    # <--- This is absolutely wonderful!!!
 
 # JOIN using broadcasted dataframe
 joined_with_broadast_df = all_employees_df \
             .join( broadcast(dept_df), all_employees_df.dept_id == dept_df.Dept_ID , how = 'right') \
-            .drop(all_employees_df.dept_id)
-            # .withColumn('Region', lambda city: bc_city_to_region.value[city] if city in bc_city_to_region.value else 'New Region')
-            #.withColumn('Region', when(dept_df.Location in bc_city_to_region.value, bc_city_to_region.value[dept_df.Location]).otherwise(lit('New Region')) )
+            .drop(all_employees_df.dept_id) \
+            .withColumn('Region', mapping_expr[dept_df.Location] ) \
+            .fillna( {'Region' : 'Unknown Region'} )    # if Region has null, due to unmapped city-to-region, default it
+            #.withColumn ('Region', when( dept_df.Location.isNotNull() , lit('Known Region') ).otherwise( lit('Unknown Region') ) )
+            # lambda city: bc_c_2_3_map[dept_df.Location] if dept_df.Location in bc_c_2_3_map else 'Unknown Region'
 
 joined_with_broadast_df.printSchema()
 joined_with_broadast_df.show()
+
+print('Average salary by Region : ')
+avg_salary_by_region_for_all_employes_df = joined_with_broadast_df.groupBy(col('Region')) \
+                                                                    .agg({'salary': 'avg'}) \
+                                                                    .withColumnRenamed('AVG(salary)', 'Avg_Salary_by_Region')
+avg_salary_by_region_for_all_employes_df.show(truncate=False)
 
 ###
 # Spark SQL join
