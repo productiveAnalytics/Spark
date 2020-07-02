@@ -8,7 +8,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as paq
 
-PARQUET_FIlE_PATH = 'test-data/flight_2020-04-27_part_0.parquet'
+PARQUET_FIlE_PATH = 'test_data/flight_2020-04-27_part_0.parquet'
 
 table = paq.read_table(source=PARQUET_FIlE_PATH)
 pandas_df = table.to_pandas()
