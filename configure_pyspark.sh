@@ -37,16 +37,32 @@ echo
 echo "For PySpark configured JAVA_HOME=$JAVA_HOME"
 echo
 
-# Set SPARK_HOME to point to Spark installation from Opt folder
-export SPARK_HOME="/home/lalitstar/opt/spark-3.0.0-preview-bin-hadoop2.7"
+OPT_HOME=/home/lalitstar/opt
+
+# Set HADOOP_HOME to point to Hadoop installation from Opt folder
+export HADOOP_HOME="${OPT_HOME}/hadoop/hadoop-3.3.0"
 echo
-echo "For PySpark configured SPARK_HOME=$SPARK_HOME"
+echo "For PySpark configured HADOOP_HOME=${HADOOP_HOME}"
+echo
+
+# Set SPARK_HOME to point to Spark installation from Opt folder
+export SPARK_HOME="${OPT_HOME}/spark/spark-3.0.0-bin-without-hadoop"
+echo
+echo "For PySpark configured SPARK_HOME=${SPARK_HOME}"
 echo
 
 # Configure PATH
-export PATH="$JAVA_HOME/bin:$SPARK_HOME/bin:$PATH"
+export PATH="$JAVA_HOME/bin:$HADOOP_HOME/bin:$SPARK_HOME/bin:$PATH"
 echo
 echo "For PySpark configured PATH=$PATH"
+echo
+
+echo "hadoop version"
+hadoop version
+echo
+
+echo "spark-submit --version"
+spark-submit --version
 echo
 
 ### Configure Jupyter Notebook (First ensure to run: sudo pip3 install ipython)
