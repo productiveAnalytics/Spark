@@ -8,6 +8,9 @@ Usage:
        java -version
 
 
+# To activate virtual python env
+pipenv shell
+
 # To run PySpark on Google Colab
 
 ##  Necessary Linux commands (note: need ! as prefix):
