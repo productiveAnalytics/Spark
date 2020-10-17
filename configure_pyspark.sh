@@ -69,12 +69,21 @@ echo
 ### export PYSPARK_SUBMIT_ARGS="pyspark-shell"
 ### export PYSPARK_DRIVER_PYTHON=ipython
 ### export PYSPARK_DRIVER_PYTHON_OPTS='notebook' pyspark
-### echo
-### echo "For PySpark configured Jupyter Notebook"
-### echo
+
+### Configure Jupyter Notebook (First ensure to run: sudo pip3 install jupyter)
+export PYSPARK_DRIVER_PYTHON=jupyter
+export PYSPARK_DRIVER_PYTHON_OPTS='notebook'
+echo
+echo "For PySpark configured Jupyter Notebook"
+echo
 
 echo "************************************"
 echo "* To start PySpark, Type : pyspark *"
 echo "************************************"
 echo
+
+# for Spark 2.4.5 with Hadoop 3.2.1 (Mac OS)
 # pyspark --packages com.amazonaws:aws-java-sdk-bundle:1.11.819,org.apache.hadoop:hadoop-aws:3.2.1
+
+# for Spark 3.0.0 with Hadoop 3.3.0 (Ubuntu 20.04)
+# pyspark --packages com.amazonaws:aws-java-sdk-bundle:1.11.819,org.apache.hadoop:hadoop-aws:3.3.0
