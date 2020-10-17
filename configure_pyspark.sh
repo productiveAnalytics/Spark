@@ -77,4 +77,4 @@ echo "************************************"
 echo "* To start PySpark, Type : pyspark *"
 echo "************************************"
 echo
-#pyspark
+# pyspark --packages com.amazonaws:aws-java-sdk-bundle:1.11.819,org.apache.hadoop:hadoop-aws:3.2.1
